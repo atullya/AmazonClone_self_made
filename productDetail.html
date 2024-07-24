@@ -137,66 +137,86 @@
 
         let show = document.querySelector(".showItem");
         let display = `
-            <div class="container">
-              <div class="allItem">
-                <div class="image">
-                  <img src="${parseData.image}" height="250px" width="250px">
-                </div>
-                <div class="details">
-                  <h2>${parseData.name}</h2>
-                  <div class="ratings">
-                    <span class="fa fa-star checked"></span>
-                    <span class="fa fa-star checked"></span>
-                    <span class="fa fa-star checked"></span>
-                    <span class="fa fa-star"></span>
-                    <span class="fa fa-star"></span>
-                  </div>
-                  <div class="category">
-                    Category: ${parseData.keywords[0]}, ${parseData.keywords[1]}
-                  </div>
-                  <div class="price">
-                    <span>Rs. ${parseData.priceCents}</span><br>
-                    <p>
-                      <del>Rs ${randomNumber}</del> -${randomPercentagee}%
-                    </p>
-                  </div>
-                  <div class="quantity">
-                    <label for="quantity">Quantity</label>
-                    <input type="number" id="quantity" id="quantity"  name="quantity" min="1" max="5">
-                  </div>
-                  <div class="button">
-                    <button class="buynow">Buy Now</button>
-                    <button class="addtocart">Add To Cart</button>
-                  </div>
-                </div>
+        <div class="container">
+          <div class="allItem">
+            <div class="image">
+              <img src="${parseData.image}" height="250px" width="250px">
+            </div>
+            <div class="details">
+              <h2>${parseData.name}</h2>
+              <div class="ratings">
+                <span class="fa fa-star checked"></span>
+                <span class="fa fa-star checked"></span>
+                <span class="fa fa-star checked"></span>
+                <span class="fa fa-star"></span>
+                <span class="fa fa-star"></span>
               </div>
-            </div>`;
+              <div class="category">
+                Category: ${parseData.keywords[0]}, ${parseData.keywords[1]}
+              </div>
+              <div class="price">
+                <span>Rs. ${parseData.priceCents}</span><br>
+                <p>
+                  <del>Rs ${randomNumber}</del> -${randomPercentagee}%
+                </p>
+              </div>
+              <div class="quantity">
+                <label for="quantity">Quantity</label>
+                <input type="number" id="quantity" name="quantity" min="1" max="10" value="1">
+              </div>
+              <div class="button">
+                <button class="buynow">Buy Now</button>
+                <button class="addtocart">Add To Cart</button>
+              </div>
+            </div>
+          </div>
+        </div>`;
 
         show.innerHTML = display;
         let counter1 = document.querySelector(".counter");
-        let quantityy = document.getElementById("quantity").value;
         document
           .querySelector(".addtocart")
           .addEventListener("click", function () {
-            addToCart(parseData, counter1, quantityy);
+            addToCart(parseData, counter1);
           });
         let cooun = localStorage.getItem("counter");
         counter1.innerHTML = cooun ? cooun : "0";
       };
 
-      function addToCart(parseData, counter1, quantityy) {
+      function addToCart(parseData, counter1) {
+        let quantityy = parseInt(document.getElementById("quantity").value);
+        console.log(quantityy);
         let c = parseInt(localStorage.getItem("counter")) || 0;
         c++;
         counter1.innerHTML = c;
         localStorage.setItem("counter", c);
-        localStorage.setItem("quantity", quantityy);
 
-        console.log(parseData);
         let cart = localStorage.getItem("cartItems");
         cart = cart ? JSON.parse(cart) : [];
-        cart.push(parseData);
+        let quantities = localStorage.getItem("quantities");
+        quantities = quantities ? JSON.parse(quantities) : [];
+
+        let itemExists = false;
+
+        // Check if the item already exists in the cart
+        for (let i = 0; i < cart.length; i++) {
+          if (cart[i].name === parseData.name) {
+            cart[i].quantity += quantityy;
+            quantities[i] += quantityy;
+            itemExists = true;
+            break;
+          }
+        }
+
+        // If the item does not exist in the cart, add it
+        if (!itemExists) {
+          parseData.quantity = quantityy;
+          cart.push(parseData);
+          quantities.push(quantityy);
+        }
+
         localStorage.setItem("cartItems", JSON.stringify(cart));
-        // window.open("cart.html");
+        localStorage.setItem("quantities", JSON.stringify(quantities));
       }
     </script>
 

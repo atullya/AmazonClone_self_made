@@ -105,17 +105,7 @@
       </div>
       <hr />
 
-      <div class="showCart" id="showCart">
-        <!-- <div class="cartitems-format cartitems-format-main">
-          <img src="" alt="" class="carticon-product-icon" />
-          <p>asdf</p>
-          <p>adsf</p>
-          <button class="cartitems-quantity">asdf</button>
-          <p>`*sdfjk</p>
-          <img class="cartitems-remove-icon" />
-        </div>
-        <hr /> -->
-      </div>
+      <div class="showCart" id="showCart"></div>
 
       <div class="cartitems-down">
         <div class="cartitems-total">
@@ -123,7 +113,7 @@
           <div>
             <div class="cartitems-total-item">
               <p>Subtotal</p>
-              <p>Rs0</p>
+              <p class="totall">Rs0</p>
             </div>
             <hr />
             <div class="cartitems-total-item">
@@ -133,7 +123,7 @@
             <hr />
             <div class="cartitems-total-item">
               <h3>Total</h3>
-              <h3>asdf</h3>
+              <h3 class="totall"></h3>
             </div>
           </div>
           <button>Procced to Checkout</button>
@@ -147,12 +137,23 @@
         </div>
       </div>
     </div>
-    <p id="showCart"></p>
+
     <script>
       // Define the show function
       function show() {
         let cart = localStorage.getItem("cartItems");
         cart = cart ? JSON.parse(cart) : [];
+
+        let total = 0;
+        for (i = 0; i < cart.length; i++) {
+          total += cart[i].priceCents * cart[i].quantity;
+        }
+        console.log(total);
+        let totallElements = document.querySelectorAll(".totall");
+        // Update each element
+        totallElements.forEach((element) => {
+          element.innerHTML = total;
+        });
 
         let content = "";
         cart.forEach((element, index) => {
@@ -160,9 +161,9 @@
            <div class="cartitems-format cartitems-format-mainn">
           <img src="${element.image}"  alt="" class="carticon-product-icon" />
           <p>${element.name}</p>
-          <p>Rs. ${element.priceCents}</p>
-          <p>1</p>
-          <p>0</p>
+          <p>Rs ${element.priceCents}</p>
+          <p>${element.quantity}</p>
+          <p>Rs. ${element.priceCents * element.quantity}</p>
           
           <button class="cartitems-quantity" onclick="removeItem(${index})">  <ion-icon name="close-outline"></ion-icon></button>
           </div>
@@ -171,38 +172,29 @@
         });
         document.getElementById("showCart").innerHTML = content;
       }
-      // <img class="cartitems-remove-icon" />
-      // <img src=${element.image} height="250px" width="250px">
-      // <p>Title: ${element.name}</p>
-      // <button onclick="removeItem(${index})">Remove</button>
       let counter1 = document.querySelector(".counter");
       let cooun = localStorage.getItem("counter");
-      let quantityy = localStorage.getItem("quantity");
-
-      if (quantityy) {
-        let displayquantityy = parseInt(quantityy);
-
-        // Check if the parsed value is a valid number
-        if (!isNaN(displayquantityy)) {
-          console.log(displayquantityy);
-        } else {
-          console.log("The value is not a valid number.");
-        }
-      } else {
-        console.log("quantity is not set in localStorage.");
-        // Set a default value if needed
-        let displayquantityy = 0; // or any other default number you prefer
-        console.log(displayquantityy);
-      }
 
       counter1.innerHTML = cooun ? cooun : "0";
       // Define the removeItem function
       function removeItem(index) {
         let cart = localStorage.getItem("cartItems");
         cart = cart ? JSON.parse(cart) : [];
-        cart.splice(index, 1); // Removes the item at the specified index from the cart array
+        let quantities = localStorage.getItem("quantities");
+        quantities = quantities ? JSON.parse(quantities) : [];
+
+        // Decrement the quantity of the item at the specified index
+        if (cart[index].quantity > 1) {
+          cart[index].quantity--;
+        } else {
+          // If the quantity is 1, remove the item from the cart
+          cart.splice(index, 1);
+          quantities.splice(index, 1);
+        }
+
         localStorage.setItem("cartItems", JSON.stringify(cart)); // Update the localStorage with the new cart array
-        show(); // Updates the display of favorite items to reflect the removal
+        localStorage.setItem("quantities", JSON.stringify(quantities)); // Update the quantities array in localStorage
+        show(); // Updates the display of items to reflect the removal
 
         let cooun = localStorage.getItem("counter");
         cooun = cooun ? parseInt(cooun) : 0;
@@ -212,6 +204,7 @@
         }
 
         localStorage.setItem("counter", cooun);
+        counter1.innerHTML = cooun; // Update the counter display
       }
 
       // Call show function on window load
